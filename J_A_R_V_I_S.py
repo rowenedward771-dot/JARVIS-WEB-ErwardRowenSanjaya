@@ -25,7 +25,7 @@ HTML_TEMPLATE = r"""
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>STARK AI SYSTEM // J.A.R.V.I.S & F.R.I.D.A.Y</title>
+<title>OWEN AI SYSTEM // J.A.R.V.I.S & F.R.I.D.A.Y</title>
 <style>
 :root {
     --primary: #00eaff;
@@ -162,7 +162,7 @@ main { max-width: 1400px; margin: 25px auto; padding: 0 20px; display: grid; gri
 <!-- LOGIN / PERSONA SELECTOR OVERLAY -->
 <div id="loginOverlay">
     <div class="loginCard">
-        <h1 id="aiTitleHeader">STARK AI SYSTEM</h1>
+        <h1 id="aiTitleHeader">OWEN AI SYSTEM</h1>
         <p>IDENTIFICATION REQUIRED TO ACCESS SYSTEM</p>
         
         <div class="gender-select">
@@ -180,7 +180,7 @@ main { max-width: 1400px; margin: 25px auto; padding: 0 20px; display: grid; gri
         <div class="brand-logo" id="brandLogo">J</div>
         <div class="brand-text">
             <h2 id="aiBrandName">J.A.R.V.I.S 3.0</h2>
-            <span>STARK INDUSTRIES AI SYSTEM</span>
+            <span>OWEN AI SYSTEM</span>
         </div>
     </div>
     <div class="status-badge">
@@ -245,6 +245,10 @@ main { max-width: 1400px; margin: 25px auto; padding: 0 20px; display: grid; gri
     </div>
 </main>
 
+<footer style="text-align: center; padding: 15px; color: #6a8d9a; font-size: 10px; letter-spacing: 2px;">
+    OWEN AI SYSTEM &nbsp;|&nbsp; Creator : Erward Rowen Sanjaya
+</footer>
+
 <script>
 /* ============================================================
    SYNTHESIZED SCI-FI SOUND EFFECTS (WEB AUDIO API)
@@ -301,7 +305,7 @@ function selectPersona(selected) {
     document.body.setAttribute('data-theme', selected);
     document.getElementById('btnJarvis').classList.toggle('active', selected === 'male');
     document.getElementById('btnFriday').classList.toggle('active', selected === 'female');
-    document.getElementById('aiTitleHeader').textContent = selected === 'male' ? 'STARK AI // J.A.R.V.I.S' : 'STARK AI // F.R.I.D.A.Y';
+    document.getElementById('aiTitleHeader').textContent = selected === 'male' ? 'OWEN AI // J.A.R.V.I.S' : 'OWEN AI // F.R.I.D.A.Y';
     AudioFX.playChime('response');
 }
 
@@ -709,22 +713,22 @@ def transcribe():
     if not GROQ_API_KEY:
         return jsonify({"error": "GROQ_API_KEY is missing."}), 500
 
-    headers = { "Authorization": f"Bearer {GROQ_API_KEY}" }
-
-    # Fixed multipart tuple structure to avoid Bad Request 400 errors
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}"
+    }
+    
     files = {
-        'file': ('speech.webm', audio_bytes, 'audio/webm'),
-        'model': (None, WHISPER_MODEL)
+        "file": ("audio.webm", audio_bytes, "audio/webm"),
+        "model": (None, WHISPER_MODEL)
     }
 
     try:
-        resp = requests.post("https://api.groq.com/openai/v1/audio/transcriptions", headers=headers, files=files, timeout=20)
-        if not resp.ok:
-            return jsonify({"error": f"Groq Whisper Error ({resp.status_code}): {resp.text}"}), resp.status_code
-        
-        return jsonify({"text": resp.json().get("text", "")})
+        resp = requests.post("https://api.groq.com/openai/v1/audio/transcriptions", headers=headers, files=files, timeout=30)
+        resp.raise_for_status()
+        text = resp.json().get("text", "")
+        return jsonify({"text": text})
     except Exception as e:
-        return jsonify({"error": f"Transcription Exception: {str(e)}"}), 500
+        return jsonify({"error": f"Groq Whisper Error: {str(e)}"}), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(debug=True, port=5000)
